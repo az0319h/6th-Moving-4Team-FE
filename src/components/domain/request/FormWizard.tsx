@@ -17,7 +17,6 @@ import {
    patchRequestDraft,
 } from "@/lib/api/request/requests/requestDraftApi";
 import { debounce } from "lodash";
-import Spinner from "@/components/common/Spinner";
 import { createRequestAction } from "@/lib/actions/request.action";
 import toast from "react-hot-toast";
 import ToastPopup from "@/components/common/ToastPopup";
@@ -25,6 +24,8 @@ import ToastPopup from "@/components/common/ToastPopup";
 interface FormWizardProps {
    currentStep: number;
    setCurrentStep: (val: number) => void;
+   isPending: boolean;
+   setIsPending: (val: boolean) => void;
 }
 
 const defaultState: FormWizardState = {
@@ -37,10 +38,11 @@ const defaultState: FormWizardState = {
 export default function FormWizard({
    currentStep,
    setCurrentStep,
+   isPending,
+   setIsPending,
 }: FormWizardProps) {
    const { user, isLoading } = useAuth();
    const [formState, setFormState] = useState<FormWizardState>(defaultState);
-   const [isPending, setIsPending] = useState(true);
    const [isInitialized, setIsInitialized] = useState(false);
 
    const isFormValid =
@@ -75,7 +77,7 @@ export default function FormWizard({
             // 활성 견적 없는 경우 draft 조회
             const draftRes = await getRequestDraft();
             const draft = draftRes?.data;
-            console.log("draft", draft);
+            console.log("draft:", draft);
 
             if (draft) {
                const {
@@ -126,7 +128,7 @@ export default function FormWizard({
       if (!user || !isInitialized) return;
       if (currentStep >= 1) {
          debouncedSave(formState, currentStep);
-         console.log("중간 저장됨:", { formState, currentStep });
+         console.log("saved:", { formState, currentStep });
       }
    }, [formState, currentStep, user, isInitialized]);
 
@@ -163,12 +165,9 @@ export default function FormWizard({
       }
    };
 
-   if (isPending)
-      return (
-         <div className="flex justify-center">
-            <Spinner />
-         </div>
-      );
+   if (isPending) {
+      return <div className="text-center text-gray-400">로딩 중...</div>;
+   }
 
    if (currentStep === 4) {
       return (

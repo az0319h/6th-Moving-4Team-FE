@@ -1,82 +1,121 @@
-/**
- * - TODO:
- * - 프로필 등록 안 하면 페이지 이동 못 하게 해야 함
- * - 이건 middleware 만들어지면 작업 예정이고
- * - 작업할 때 헤더도 같이 건드려야 함
- * - 추가) 이미지 설정 = AWS 설정 끝나고 나서 해야 함
- */
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MOVE_TYPES } from "@/constants";
-import createClientProfile from "../api/auth/requests/createClientProfile";
+import { useAuth } from "@/context/AuthContext";
+import { useForm } from "react-hook-form";
+import { ClientProfilePostSchema, ClientProfilePostValue } from "../schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import updateProfileImage from "../api/auth/requests/updateProfileImage";
+import { AuthFetchError } from "../types";
+import { ServiceType } from "../types/client.types";
+import clientProfile from "../api/auth/requests/updateClientProfile";
 
 export default function useClientProfilePostForm() {
    // ✅ 상태 모음
    const router = useRouter();
-   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
    const [isLoading, setIsLoading] = useState(false);
+   const { refreshUser } = useAuth();
+
+   // react-hook-form
+   const {
+      handleSubmit,
+      setError,
+      setValue,
+      watch,
+      control,
+      formState: { errors, isValid },
+   } = useForm<ClientProfilePostValue>({
+      resolver: zodResolver(ClientProfilePostSchema),
+      mode: "onChange",
+   });
 
    // ✅ 이용 서비스 선택
-   const handleServiceToggle = (service: string) => {
-      setSelectedServices((prev) => {
-         const isSelected = prev.includes(service);
+   const handleServiceToggle = (service: ServiceType) => {
+      const current = watch("serviceType") || [];
 
-         return isSelected
-            ? prev.filter((s) => s !== service)
-            : [...prev, service];
-      });
+      const updated = current.includes(service)
+         ? current.filter((s) => s !== service)
+         : [...current, service];
+
+      setValue("serviceType", updated, { shouldValidate: true });
    };
 
    // ✅ 내가 사는 지역 선택
    const handleRegionToggle = (region: string) => {
-      setSelectedRegions((prev) => {
-         const isSelected = prev.includes(region);
+      const current = watch("livingArea") || [];
 
-         return isSelected
-            ? prev.filter((r) => r !== region)
-            : [...prev, region];
-      });
-   };
+      const updated = current.includes(region)
+         ? current.filter((r) => r !== region)
+         : [...current, region];
 
-   // ✅ 버튼 활성화 여부: 나중에 이미지 조건도 넣어야 함
-   const isDisabled =
-      isLoading ||
-      selectedServices.length === 0 ||
-      selectedRegions.length === 0;
-
-   // ✅ 보낼 자료
-   const payload = {
-      // profileImage: profileImage,
-      serviceType: selectedServices.map(
-         (type) => MOVE_TYPES[type as keyof typeof MOVE_TYPES],
-      ),
-      livingArea: selectedRegions,
+      setValue("livingArea", updated, { shouldValidate: true });
    };
 
    // ✅ api 호출하고 프로필 생성 성공하면 mover-search로 이동: 이미지 부분 수정해야 함
-   const onSubmit = async () => {
+   const onSubmit = async (data: ClientProfilePostValue) => {
       setIsLoading(true);
 
       try {
-         await createClientProfile(payload);
+         // 1. 이미지가 있으면 먼저 업로드
+         let imageUrl: string | undefined;
 
-         router.replace("/mover-search");
+         if (data.profileImage instanceof File) {
+            const formData = new FormData();
+            formData.append("image", data.profileImage);
+
+            const res = await updateProfileImage(formData);
+            imageUrl = res.url;
+         } else {
+            imageUrl = data.profileImage; // 타입 = string
+         }
+
+         // 2. 보낼 자료
+         const payload = {
+            profileImage: imageUrl, // 이미지 경로 or undefined를 DB에 저장
+            serviceType: watch("serviceType") || [],
+            livingArea: watch("livingArea") || [],
+         };
+
+         const res = await clientProfile.post(payload);
+
+         if (res.data.isProfileCompleted === true) {
+            alert("프로필이 등록되었습니다.");
+
+            // user 상태 즉각 반영
+            refreshUser();
+            router.replace("/mover-search");
+         }
       } catch (error) {
          console.error("일반 프로필 등록 실패: ", error);
+
+         // 오류 처리: 객체로
+         const customError = error as AuthFetchError;
+
+         if (customError?.status) {
+            Object.entries(customError.body.data!).forEach(([key, message]) => {
+               setError(key as keyof ClientProfilePostValue, {
+                  type: "server",
+                  message: String(message),
+               });
+            });
+         } else {
+            console.error("예기치 못한 오류 발생: ", customError?.body.message);
+         }
       } finally {
          setIsLoading(false);
       }
    };
 
    return {
+      isValid,
       isLoading,
-      isDisabled,
-      selectedServices,
-      selectedRegions,
       handleServiceToggle,
       handleRegionToggle,
       onSubmit,
+      handleSubmit,
+      control,
+      errors,
+      watch,
    };
 }

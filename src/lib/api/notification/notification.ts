@@ -4,9 +4,18 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+interface PageParms {
+   cursor?: string;
+   limit?: number;
+}
+
 // 알림 목록 조회
-export async function getNotifications() {
-   return await tokenFetch("/notifications");
+export async function getNotifications({ cursor, limit = 6 }: PageParms) {
+   const params = new URLSearchParams();
+   if (cursor) params.append("cursor", cursor);
+   params.append("limit", String(limit));
+
+   return await tokenFetch(`/notifications?${params.toString()}`);
 }
 
 // 알림 읽기
@@ -19,8 +28,12 @@ export async function readNotification(notificationId: string) {
 // SSE 실시간 연결
 export function connectSSE(
    onMessage: (data: Notification) => void,
-): EventSourcePolyfill {
+): EventSourcePolyfill | null {
    const accessToken = tokenSettings.get("accessToken");
+   if (!accessToken) {
+      console.warn("accessToken 없음. SSE 연결 생략");
+      return null;
+   }
 
    const es = new EventSourcePolyfill(`${BASE_URL}/notifications/stream`, {
       headers: {

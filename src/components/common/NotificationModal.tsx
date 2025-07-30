@@ -1,34 +1,46 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import closeIcon from "@/assets/images/xIcon.svg";
 import Image from "next/image";
 import { formatDateDiff } from "@/lib/utils";
-import {
-   connectSSE,
-   getNotifications,
-   readNotification,
-} from "@/lib/api/notification/notificationApi";
+import { readNotification } from "@/lib/api/notification/notification";
 import { Notification } from "@/lib/types/notification.types";
 import DOMPurify from "dompurify";
 import { useRouter } from "next/navigation";
+import { useNotification } from "@/context/NotificationContext";
+import { useNotificationsQuery } from "@/lib/api/notification/query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function NotificationModal({
    setIsNotiModalOpen,
-   setHasUnread,
 }: {
    setIsNotiModalOpen: (val: boolean) => void;
-   setHasUnread: (val: boolean) => void;
 }) {
-   const [notifications, setNotifications] = useState<Notification[]>([]);
+   const { realtimeNotifications, setHasUnread } = useNotification();
    const router = useRouter();
+   const queryClient = useQueryClient();
+   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+      useNotificationsQuery();
+
+   // 페이지 데이터를 flat하게 만들기
+   const fetchedNotifications =
+      data?.pages.flatMap((page) => page.notifications) ?? [];
+
+   // 중복 제거 후 병합
+   const notifications = [
+      ...realtimeNotifications.filter(
+         (r) => !fetchedNotifications.some((f) => f.id === r.id),
+      ),
+      ...fetchedNotifications,
+   ];
 
    const handleClick = async (item: Notification) => {
       try {
          await readNotification(item.id);
-         setNotifications((prev) =>
-            prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n)),
-         );
+         queryClient.invalidateQueries({ queryKey: ["notifications"] });
          router.push(item.targetUrl ?? "");
          setIsNotiModalOpen(false);
       } catch (err) {
@@ -36,42 +48,23 @@ export default function NotificationModal({
       }
    };
 
-   // 초기 알림 목록 fetch
    useEffect(() => {
-      const fetchNotifications = async () => {
-         try {
-            const data = await getNotifications();
-            setNotifications(data.notifications);
-         } catch (err: unknown) {
-            if (err instanceof Error) {
-               console.error("알림 목록 조회 실패:", err.message);
-            } else {
-               console.error("알림 목록 조회 실패:", err);
+      if (!bottomRef.current || !hasNextPage || isFetchingNextPage) return;
+
+      const observer = new IntersectionObserver(
+         (entries) => {
+            if (entries[0].isIntersecting) {
+               fetchNextPage();
             }
-         }
-      };
+         },
+         { threshold: 1.0 },
+      );
 
-      fetchNotifications();
-   }, []);
+      observer.observe(bottomRef.current);
 
-   // SSE 연결
-   useEffect(() => {
-      let es: EventSource | null = null;
+      return () => observer.disconnect();
+   }, [bottomRef, hasNextPage, isFetchingNextPage]);
 
-      const connect = async () => {
-         es = connectSSE((newNoti) => {
-            setNotifications((prev) => [newNoti, ...prev]);
-         });
-      };
-
-      connect();
-
-      return () => {
-         es?.close();
-      };
-   }, []);
-
-   // 알림을 열면 읽음 처리
    useEffect(() => {
       setHasUnread(false);
    }, [setHasUnread]);
@@ -85,7 +78,12 @@ export default function NotificationModal({
             </button>
          </div>
          <ul className="scrollbar-hide h-full overflow-auto">
-            {notifications.length > 0 ? (
+            {isLoading ? (
+               // TODO: skeleton 넣어주세요
+               <div className="py-4 text-center font-medium text-gray-400 max-lg:text-xs">
+                  잠시만요
+               </div>
+            ) : notifications.length > 0 ? (
                notifications.map((item, idx) => (
                   <button
                      key={idx}
@@ -111,6 +109,12 @@ export default function NotificationModal({
             ) : (
                <div className="mt-10 flex justify-center text-gray-400 max-lg:text-sm">
                   알림이 존재하지 않습니다.
+               </div>
+            )}
+            <div ref={bottomRef} />
+            {isFetchingNextPage && (
+               <div className="py-4 text-center font-medium text-gray-400 max-lg:text-xs">
+                  불러오는 중...
                </div>
             )}
          </ul>

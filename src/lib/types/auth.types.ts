@@ -21,7 +21,7 @@ export interface Region {
 }
 
 export interface Client extends BaseUser {
-   serviceType: string[];
+   serviceType: ("SMALL" | "HOME" | "OFFICE")[];
    livingArea: string[];
 }
 

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import { AuthProvider } from "@/context/AuthContext";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import { Toaster } from "react-hot-toast";
+import { Providers } from "@/app/providers";
 
 export const metadata: Metadata = {
    title: "무빙 - 스마트한 이사 비교 플랫폼",
@@ -28,10 +27,9 @@ export default async function RootLayout({
       <html lang={locale}>
          <body className="h-full min-h-screen">
             <NextIntlClientProvider>
-               <AuthProvider>
+               <Providers>
                   <main>{children}</main>
-                  <Toaster position="top-center" />
-               </AuthProvider>
+               </Providers>
             </NextIntlClientProvider>
          </body>
       </html>

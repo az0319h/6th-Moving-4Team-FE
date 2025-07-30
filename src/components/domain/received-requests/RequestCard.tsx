@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import RequestActionModal from "./RequestActionModal";
 import { ReceivedRequest } from "@/lib/types";
+import MoveChip, { ChipType } from "@/components/common/MoveChip";
+import MoveTextCard from "../my-quotes/MoveTextCard";
+import RequestActionModal from "./RequestActionModal";
 
 export default function RequestCard({ req }: { req: ReceivedRequest }) {
    const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,48 +16,72 @@ export default function RequestCard({ req }: { req: ReceivedRequest }) {
    };
 
    const closeModal = () => {
-      setModalType(null);
       setIsModalOpen(false);
+      setModalType(null);
    };
-
+   
    return (
       <>
-         <div key={req.id} className="mb-4 rounded border p-4 shadow-sm">
-            <div className="text-sm text-gray-500">{req.moveType} 이사</div>
-            <div className="font-bold">{req.clientName} 고객님</div>
-            <div className="text-sm">
-               출발: {req.fromAddress} → 도착: {req.toAddress}
-            </div>
-            {req.isDesignated && (
-               <span className="mt-2 inline-block rounded bg-red-100 px-2 py-0.5 text-xs text-red-600">
-                  지정 견적 요청
+         {/* 요청 카드 UI */}
+         <div key={req.id} className="block [&_div]:gap-3 [&_div]:md:gap-4">
+            <div className="border-line-100 flex flex-col rounded-2xl border px-3.5 py-4 lg:px-6 lg:py-5">
+               <div className="flex gap-2">
+                  <MoveChip type={(req.moveType as ChipType) ?? "PENDING"} />
+                  {req.isDesignated && <MoveChip type="DESIGNATED" />}
+               </div>
+               <span className="text-16-semibold lg:text-20-semibold">
+                  {req.clientName} 고객님
                </span>
-            )}
-            <p>이사일 : {req.moveDate}</p>
-            <div className="mt-2 flex gap-4">
-               <button
-                  className="rounded bg-blue-500 px-3 py-1 text-white"
-                  onClick={() => openModal("accept")}
-               >
-                  견적요청하기
-               </button>
-               <button
-                  className="rounded bg-gray-500 px-3 py-1 text-white"
-                  onClick={() => openModal("reject")}
-               >
-                  반려하기
-               </button>
+               <div className="flex flex-col">
+                  <div className="flex items-center md:hidden">
+                     <MoveTextCard text="이사일" />
+                     <span>
+                        {req.moveDate.slice(0, 10)} (
+                        {"일월화수목금토"[new Date(req.moveDate).getDay()]})
+                     </span>
+                  </div>
+                  <div className="bg-line-100 h-[1px]"></div>
+                  <div className="[&_span]:lg:text-18-medium flex items-center">
+                     <div className="hidden items-center md:flex">
+                        <MoveTextCard text="이사일" />
+                        <span>
+                           {req.moveDate.slice(0, 10)} (
+                           {"일월화수목금토"[new Date(req.moveDate).getDay()]})
+                        </span>
+                     </div>
+                     <MoveTextCard text="출발" />
+                     <span>{req.fromAddress.slice(0, 6)}</span>
+                     <MoveTextCard text="도착" />
+                     <span>{req.toAddress.slice(0, 6)}</span>
+                  </div>
+               </div>
+               <div className="[&_button]:text-16-semibold [&_button]:lg:text-18-semibold mt-3 flex flex-col md:flex-row [&_button]:rounded-lg [&_button]:py-3">
+                  <button
+                     className="bg-primary-blue-300 w-full text-white"
+                     onClick={() => openModal("accept")}
+                  >
+                     견적 보내기
+                  </button>
+                  <button
+                     className="border-primary-blue-300 text-primary-blue-300 w-full border"
+                     onClick={() => openModal("reject")}
+                  >
+                     반려
+                  </button>
+               </div>
             </div>
          </div>
 
-         <RequestActionModal
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            request={req}
-            type={modalType}
-            requestId={req.id}
-            clientId={req.clientId}
-         />
+         {modalType && (
+            <RequestActionModal
+               isOpen={isModalOpen}
+               onClose={closeModal}
+               modalType={modalType}
+               request={req}
+               requestId={req.id}
+               clientId={req.clientId}
+            />
+         )}
       </>
    );
 }

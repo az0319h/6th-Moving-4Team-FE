@@ -27,11 +27,9 @@ export const nameSchema = baseAuthSchema
    .trim();
 
 export const phoneSchema = baseAuthSchema
-   .min(9, "9자 이상 입력해주세요.")
-   .regex(
-      /^(\+82\s?1[016789]-?\d{3,4}-?\d{4}|0\d{1,2}-?\d{3,4}-?\d{4})$/,
-      "유효한 전화번호를 입력해주세요.",
-   );
+   .min(9, "9자 이상 입력해 주세요.")
+   .max(11, "11자 이하로 입력해 주세요.")
+   .regex(/^\d{9,11}$/, "유효한 전화번호를 입력해주세요.");
 
 // ✅ 회원가입 스키마 (비밀번호 확인 포함)
 export const signUpFormSchema = z

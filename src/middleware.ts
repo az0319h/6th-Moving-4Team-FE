@@ -45,7 +45,14 @@ export async function middleware(req: NextRequest) {
    // 인증 안된 경우 다른 제한 없음 → 통과
    if (!token) return intlRespone;
 
-   const decoded = await decodeJWT(token);
+   let decoded;
+   try {
+      decoded = await decodeJWT(token);
+   } catch (e) {
+      console.error("JWT decoding error:", e);
+      return NextResponse.redirect(new URL("/sign-in/client", req.url));
+   }
+
    const { isProfileCompleted, userType } = decoded;
 
    // 프로필 등록 미완료 시 다른 페이지 접근 불가

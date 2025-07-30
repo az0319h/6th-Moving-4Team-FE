@@ -8,10 +8,12 @@ export default function RejectedRequestsTab({ tab }: { tab: string }) {
       <Suspense
          key={tab}
          fallback={
-            <SkeletonLayout
-               count={6}
-               SkeletonComponent={RejectedRequestsSkeleton}
-            />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+               <SkeletonLayout
+                  count={6}
+                  SkeletonComponent={RejectedRequestsSkeleton}
+               />
+            </div>
          }
       >
          <RejectedRequestsList />

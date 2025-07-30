@@ -69,7 +69,7 @@ export default function MoveChip({ type, mini = false }: MoveChipProps) {
 
    return (
       <div
-         className={`inline-flex items-center rounded-sm px-1 py-1 ${config.bg}`}
+         className={`inline-flex items-center !gap-0 rounded-sm px-1 py-1 ${config.bg}`}
       >
          {config.icon && (
             <Image

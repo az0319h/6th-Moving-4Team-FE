@@ -1,16 +1,17 @@
 "use client";
 
+import InputModal from "@/components/common/InputModal";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { sendEstimateRequest } from "@/lib/api/estimate/requests/sendEstimateRequest";
 import { rejectEstimateRequest } from "@/lib/api/estimate/requests/rejectEstimateRequest";
 import { ReceivedRequest } from "@/lib/types";
-
+import MoveChip, { ChipType } from "@/components/common/MoveChip";
 interface Props {
    isOpen: boolean;
    onClose: () => void;
+   modalType: "accept" | "reject";
    request: ReceivedRequest;
-   type: "accept" | "reject" | null;
    requestId: string;
    clientId: string;
 }
@@ -18,8 +19,8 @@ interface Props {
 export default function RequestActionModal({
    isOpen,
    onClose,
+   modalType,
    request,
-   type,
    requestId,
    clientId,
 }: Props) {
@@ -29,12 +30,17 @@ export default function RequestActionModal({
    const router = useRouter();
    const pathname = usePathname();
 
-   if (!isOpen || !request || !type) return null;
+   const isActive =
+      modalType === "accept"
+         ? Number(price) > 0 && comment.trim() !== ""
+         : comment.trim() !== "";
 
-   const handleConfirm = async () => {
+   const handleSubmit = async () => {
+      if (!isActive || !modalType) return;
       setIsSubmitting(true);
+
       try {
-         if (type === "accept") {
+         if (modalType === "accept") {
             await sendEstimateRequest({
                price: Number(price),
                comment,
@@ -50,80 +56,70 @@ export default function RequestActionModal({
          }
 
          const locale = pathname.split("/")[1];
-         const tab = type === "accept" ? "1" : "2";
+         const tab = modalType === "accept" ? "1" : "2";
          router.push(`/${locale}/my-quotes/mover?tab=${tab}`);
       } catch (error) {
          console.error("요청 실패:", error);
-         // TODO: 사용자에게 에러 토스트 등 알림 처리
+         // TODO: Toast 알림 추가
       } finally {
          setIsSubmitting(false);
          onClose();
-         setPrice("");
-         setComment("");
       }
    };
 
    return (
-      <div className="bg-opacity-30 fixed inset-0 z-50 flex items-center justify-center bg-black">
-         <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-bold">
-               {type === "accept"
-                  ? "견적 요청을 진행하시겠습니까?"
-                  : "요청을 반려하시겠습니까?"}
-            </h2>
-            <p className="mb-4 text-sm">
-               고객명: {request.clientName} <br />
-               이사일: {request.moveDate}
-            </p>
-
-            {type === "accept" && (
-               <div className="mb-3">
-                  <label className="block text-sm font-medium">
-                     견적 금액 (원)
+      <form
+         onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+         }}
+      >
+         <InputModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={modalType === "accept" ? "견적 보내기" : "요청 반려"}
+            buttonTitle={modalType === "accept" ? "견적 보내기" : "반려하기"}
+            isActive={isActive && !isSubmitting}
+         >
+            <div>
+               <div className="flex gap-2">
+                  <MoveChip
+                     type={(request.moveType as ChipType) ?? "PENDING"}
+                  />
+                  {request.isDesignated && <MoveChip type="DESIGNATED" />}
+               </div>
+            </div>
+            {modalType === "accept" && (
+               <div className="mb-4">
+                  <label className="mb-1 block text-sm font-medium">
+                     견적 금액
                   </label>
                   <input
                      type="number"
                      value={price}
                      onChange={(e) => setPrice(e.target.value)}
-                     className="mt-1 w-full rounded border px-3 py-1 text-sm"
                      placeholder="금액을 입력하세요"
+                     className="w-full rounded border px-3 py-2 text-sm"
                   />
                </div>
             )}
-
             <div className="mb-4">
-               <label className="block text-sm font-medium">
-                  {type === "accept" ? "요청 코멘트" : "반려 사유"}
+               <label className="mb-1 block text-sm font-medium">
+                  {modalType === "accept" ? "요청 코멘트" : "반려 사유"}
                </label>
                <textarea
+                  className="focus:outline-primary-blue-300 w-full rounded-lg border border-gray-300 p-3 text-sm"
+                  placeholder={
+                     modalType === "accept"
+                        ? "견적에 대한 메모를 입력해주세요."
+                        : "반려 사유를 입력해주세요."
+                  }
+                  rows={4}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="mt-1 w-full rounded border px-3 py-1 text-sm"
-                  placeholder={
-                     type === "accept"
-                        ? "요청에 대한 메시지를 입력하세요"
-                        : "반려 사유를 입력하세요"
-                  }
                />
             </div>
-
-            <div className="flex justify-end gap-3">
-               <button
-                  onClick={onClose}
-                  className="rounded bg-gray-200 px-4 py-1 text-sm"
-                  disabled={isSubmitting}
-               >
-                  취소
-               </button>
-               <button
-                  onClick={handleConfirm}
-                  className="rounded bg-blue-600 px-4 py-1 text-sm text-white"
-                  disabled={isSubmitting || (type === "accept" && !price)}
-               >
-                  확인
-               </button>
-            </div>
-         </div>
-      </div>
+         </InputModal>
+      </form>
    );
 }

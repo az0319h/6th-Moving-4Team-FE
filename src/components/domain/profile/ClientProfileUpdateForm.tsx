@@ -5,31 +5,33 @@ import ProfileFieldButton from "./ProfileFieldButton";
 import ClientProfileTitle from "./ClientProfileTitle";
 import ProfileInput from "./ProfileInput";
 import SolidButton from "@/components/common/SolidButton";
-import { moveType, regions } from "@/constants";
+import { MOVE_TYPES, moveType, regions } from "@/constants";
 import useClientProfileUpdateForm from "@/lib/hooks/useClientProfileUpdateForm";
 import ProfilePasswordInput from "./ProfilePasswordInput";
-import ProfileImage from "./ProfileImage";
 import OutlinedButton from "@/components/common/OutlinedButton";
+import ImageInputField from "./ImageInputField";
+import { useAuth } from "@/context/AuthContext";
 import { ClientProfileUpdateValue } from "@/lib/schemas";
 
 export default function ClientProfileUpdateForm() {
-   // ✅ 함수 모음
+   // ✅ 함수 등 모음
+   const { user } = useAuth();
    const {
       register,
       errors,
       isValid,
       isLoading,
-      selectedServices,
-      selectedRegions,
       handleServiceToggle,
       handleRegionToggle,
       onSubmit,
       handleSubmit,
+      watch,
+      control,
    } = useClientProfileUpdateForm();
 
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
-         <div className="flex flex-col lg:flex-row lg:justify-baseline lg:gap-14">
+         <div className="flex flex-col lg:mb-14 lg:flex-row lg:justify-baseline lg:gap-14">
             {/* ✅ 입력창 모음 */}
             <div className="flex-1">
                <ProfileInput<ClientProfileUpdateValue>
@@ -59,56 +61,76 @@ export default function ClientProfileUpdateForm() {
                   error={errors.phone?.message}
                />
                <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
-               <ProfilePasswordInput<ClientProfileUpdateValue>
-                  label="현재 비밀번호"
-                  name="password"
-                  placeholder="현재 비밀번호를 입력해 주세요."
-                  register={register}
-                  error={errors.password?.message}
-               />
-               <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
-               <ProfilePasswordInput<ClientProfileUpdateValue>
-                  label="새 비밀번호"
-                  name="newPassword"
-                  placeholder="현재 비밀번호를 입력해 주세요."
-                  register={register}
-                  error={errors.newPassword?.message}
-               />
-               <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
-               <ProfilePasswordInput<ClientProfileUpdateValue>
-                  label="새 비밀번호 확인"
-                  name="newPasswordConfirmation"
-                  placeholder="새 비밀번호를 다시 한번 입력해 주세요."
-                  register={register}
-                  error={errors.newPasswordConfirmation?.message}
-               />
+               {user && user.provider === "LOCAL" && (
+                  <ProfilePasswordInput<ClientProfileUpdateValue>
+                     label="현재 비밀번호"
+                     name="password"
+                     placeholder="현재 비밀번호를 입력해 주세요."
+                     register={register}
+                     error={errors.password?.message}
+                  />
+               )}
+               {user && user.provider === "LOCAL" && (
+                  <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
+               )}
+               {user && user.provider === "LOCAL" && (
+                  <ProfilePasswordInput<ClientProfileUpdateValue>
+                     label="새 비밀번호"
+                     name="newPassword"
+                     placeholder="현재 비밀번호를 입력해 주세요."
+                     register={register}
+                     error={errors.newPassword?.message}
+                  />
+               )}
+               {user && user.provider === "LOCAL" && (
+                  <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
+               )}
+               {user && user.provider === "LOCAL" && (
+                  <ProfilePasswordInput<ClientProfileUpdateValue>
+                     label="새 비밀번호 확인"
+                     name="newPasswordConfirmation"
+                     placeholder="새 비밀번호를 다시 한번 입력해 주세요."
+                     register={register}
+                     error={errors.newPasswordConfirmation?.message}
+                  />
+               )}
             </div>
 
-            <hr className="border-line-100 my-5 lg:my-8 lg:hidden" />
+            {user && user.provider === "LOCAL" && (
+               <hr className="border-line-100 my-5 lg:my-8 lg:hidden" />
+            )}
 
             <div className="flex-1">
                {/* ✅ 프로필 이미지 */}
-               <ProfileImage />
+               <ImageInputField
+                  name="profileImage"
+                  text="프로필 이미지"
+                  control={control}
+               />
 
                <hr className="border-line-100 my-5 lg:my-8 lg:w-160" />
 
                {/* ✅ 이용 서비스 */}
                <section>
-                  <ClientProfileTitle type="서비스" />
+                  <ClientProfileTitle
+                     type="서비스"
+                     error={errors.serviceType?.message}
+                  />
 
                   {moveType.map((service) => {
-                     const selectedIndex = selectedServices?.indexOf(service);
+                     const value =
+                        MOVE_TYPES[service as keyof typeof MOVE_TYPES]; // "소형이사" → "SMALL"
+
                      return (
                         <ProfileFieldButton
                            category="서비스"
                            name="serviceType"
                            key={service}
                            value={service}
-                           isSelected={selectedServices?.includes(service)}
-                           onClick={() => handleServiceToggle(service)}
-                           index={
-                              selectedIndex >= 0 ? selectedIndex : undefined
-                           }
+                           isSelected={(watch("serviceType") || []).includes(
+                              value,
+                           )}
+                           onClick={() => handleServiceToggle(value)}
                         >
                            {service}
                         </ProfileFieldButton>
@@ -120,27 +142,26 @@ export default function ClientProfileUpdateForm() {
 
                {/* ✅ 내가 사는 지역 */}
                <section className="mb-8 lg:mb-14">
-                  <ClientProfileTitle type="지역" />
+                  <ClientProfileTitle
+                     type="지역"
+                     error={errors.livingArea?.message}
+                  />
 
                   <div className="grid w-70 grid-cols-5 gap-x-2 gap-y-3 lg:w-104 lg:gap-x-3.5 lg:gap-y-4.5">
-                     {regions.map((region) => {
-                        const selectedIndex = selectedRegions?.indexOf(region);
-                        return (
-                           <ProfileFieldButton
-                              category="지역"
-                              name="livingArea"
-                              key={region}
-                              value={region}
-                              isSelected={selectedRegions?.includes(region)}
-                              onClick={() => handleRegionToggle(region)}
-                              index={
-                                 selectedIndex >= 0 ? selectedIndex : undefined
-                              }
-                           >
-                              {region}
-                           </ProfileFieldButton>
-                        );
-                     })}
+                     {regions.map((region) => (
+                        <ProfileFieldButton
+                           category="지역"
+                           name="livingArea"
+                           key={region}
+                           value={region}
+                           isSelected={(watch("livingArea") || []).includes(
+                              region,
+                           )}
+                           onClick={() => handleRegionToggle(region)}
+                        >
+                           {region}
+                        </ProfileFieldButton>
+                     ))}
                   </div>
                </section>
             </div>

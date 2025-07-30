@@ -1,10 +1,12 @@
 import React from "react";
+import ErrorText from "../auth/ErrorText";
 
 interface Prop {
    type: "생성" | "서비스" | "지역" | "수정";
+   error?: string;
 }
 
-export default function ClientProfileTitle({ type }: Prop) {
+export default function ClientProfileTitle({ type, error }: Prop) {
    // ✅ 프로필 생성 제목
    if (type === "생성") {
       return (
@@ -23,28 +25,34 @@ export default function ClientProfileTitle({ type }: Prop) {
    // ✅ 이용 서비스
    if (type === "서비스") {
       return (
-         <>
+         <section className="mb-6 lg:mb-8">
             <h3 className="text-black-300 text-16-semibold lg:text-20-semibold mb-2 block">
                이용 서비스
             </h3>
-            <p className="text-12-regular lg:text-16-regular mb-6 text-gray-400 lg:mb-8">
-               *이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
-            </p>
-         </>
+            {!error && (
+               <p className="text-12-regular lg:text-16-regular text-gray-400">
+                  *이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!
+               </p>
+            )}
+            <ErrorText error={error} position="left" />
+         </section>
       );
    }
 
    // ✅ 지역
    if (type === "지역") {
       return (
-         <>
+         <section className="mb-6 lg:mb-8">
             <h3 className="text-black-300 text-16-semibold lg:text-20-semibold mb-2 block">
                내가 사는 지역
             </h3>
-            <p className="text-12-regular lg:text-16-regular mb-6 text-gray-400 lg:mb-8">
-               *내가 사는 지역은 언제든 수정 가능해요!
-            </p>
-         </>
+            {!error && (
+               <p className="text-12-regular lg:text-16-regular text-gray-400">
+                  *내가 사는 지역은 언제든 수정 가능해요!
+               </p>
+            )}
+            <ErrorText error={error} position="left" />
+         </section>
       );
    }
 

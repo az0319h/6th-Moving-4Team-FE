@@ -10,7 +10,7 @@ import {
    MoverProfileSchema,
 } from "../schemas/profile.schema";
 import updateMoverProfile from "../api/auth/requests/updateMoverProfile";
-import updateMoverProfileImage from "../api/auth/requests/updataMoverProfileImage";
+import updateProfileImage from "../api/auth/requests/updateProfileImage";
 import { useAuth } from "@/context/AuthContext";
 
 function useMoverProfilePostForm() {
@@ -40,7 +40,7 @@ function useMoverProfilePostForm() {
             const formData = new FormData();
             formData.append("image", data.image);
 
-            const res = await updateMoverProfileImage(formData);
+            const res = await updateProfileImage(formData);
 
             imageUrl = res.url; // 백엔드에서 반환한 s3 URL
          }

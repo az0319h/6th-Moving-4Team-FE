@@ -26,6 +26,7 @@ export const MOVE_TYPES = {
    가정이사: "HOME",
    사무실이사: "OFFICE",
 } as const;
+export type MoveType = (typeof MOVE_TYPES)[keyof typeof MOVE_TYPES];
 
 //역변환
 export const serviceTypeMap = {

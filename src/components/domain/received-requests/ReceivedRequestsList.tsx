@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import RequestCard from "./RequestCard";
 import { ReceivedRequest, ReceivedRequestsProps } from "@/lib/types";
 import { useReceivedRequestsQuery } from "@/lib/api/request/query";
+import SkeletonLayout from "@/components/common/SkeletonLayout";
+import RequestCardSkeleton from "./RequestCardSkeleton";
 
 export default function ReceivedRequestsList({
    moveType,
@@ -33,25 +35,33 @@ export default function ReceivedRequestsList({
    }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
    if (isLoading) {
-      return <p className="mt-4 text-center text-gray-500">불러오는 중...</p>;
+      return (
+         <div className="flex flex-col gap-6 md:gap-8 lg:gap-12">
+            <SkeletonLayout count={6} SkeletonComponent={RequestCardSkeleton} />
+         </div>
+      );
    }
 
    return (
       <>
-         {data?.pages.map((page) =>
-            (page as { requests: ReceivedRequest[] }).requests.map((req) => (
-               <RequestCard key={req.id} req={req} />
-            )),
-         )}
-         <div ref={observerRef} className="h-10" />
-         {isFetchingNextPage && (
-            <p className="mt-4 text-center text-gray-500">불러오는 중...</p>
-         )}
-         {!hasNextPage && (
-            <p className="mt-4 text-center text-gray-400">
-               마지막 페이지입니다.
-            </p>
-         )}
+         <div className="flex flex-col gap-6 md:gap-8 lg:gap-12">
+            {data?.pages.map((page) =>
+               (page as { requests: ReceivedRequest[] }).requests.map((req) => (
+                  <RequestCard key={req.id} req={req} />
+               )),
+            )}
+         </div>
+         <div className="py-4">
+            <p ref={observerRef} />
+            {isFetchingNextPage && (
+               <p className="text-center text-gray-500">불러오는 중...</p>
+            )}
+            {!hasNextPage && (
+               <p className="text-center text-gray-400">
+                  견적 요청이 모두 도착했습니다
+               </p>
+            )}
+         </div>
       </>
    );
 }

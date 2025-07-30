@@ -110,9 +110,3 @@ export const initialState: MoverState = {
       sortBy: "mostReviewed",
    },
 };
-
-export enum ClientMoveType {
-   "소형이사" = "SMALL",
-   "가정이사" = "HOME",
-   "사무실이사" = "OFFICE",
-}

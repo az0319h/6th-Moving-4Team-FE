@@ -123,6 +123,8 @@ export default function MoverCard() {
                <Image
                   src={mover.profileImage || avatar}
                   alt="프로필 이미지"
+                  width={64}
+                  height={64}
                   className="h-16 w-16 rounded-full object-cover"
                   onError={(e) => {
                      // 이미지 로드 실패 시 기본 아바타로 대체

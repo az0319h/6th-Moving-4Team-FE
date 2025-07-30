@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useOutsideClick } from "@/lib/hooks/useOutsideClick";
 import Link from "next/link";
 import logo from "@/assets/images/logo.svg";
@@ -19,8 +19,8 @@ import ProfileDropDownMenu from "@/components/common/ProfileDropdownMenu";
 import { useAuth } from "@/context/AuthContext";
 import NotificationModal from "../common/NotificationModal";
 import { routing } from "@/i18n/routing"; // locales 배열 접근용
-import { getNotifications } from "@/lib/api/notification/notificationApi";
 import LanguageSwitcherDesktop from "./LanguageSwitcherDesktop";
+import { useNotification } from "@/context/NotificationContext";
 
 function getPathnameWithoutLocale(
    pathname: string,
@@ -36,10 +36,10 @@ function getPathnameWithoutLocale(
 
 export default function Header({ children }: { children?: React.ReactNode }) {
    const { user } = useAuth();
+   const { hasUnread } = useNotification();
    const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
    const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
    const [isNotiModalOpen, setIsNotiModalOpen] = useState(false);
-   const [hasUnread, setHasUnread] = useState(false);
    const pathname = usePathname();
    const profileRef = useRef<HTMLDivElement>(null);
    const notificationRef = useRef<HTMLDivElement>(null);
@@ -63,15 +63,6 @@ export default function Header({ children }: { children?: React.ReactNode }) {
    useOutsideClick(profileRef, () => setIsProfileDropDownOpen(false));
 
    useOutsideClick(notificationRef, () => setIsNotiModalOpen(false));
-
-   useEffect(() => {
-      const checkUnread = async () => {
-         const data = await getNotifications();
-         setHasUnread(data.hasUnread);
-      };
-
-      if (user) checkUnread();
-   }, [user]);
 
    return (
       <header className="border-line-100 sticky top-0 left-0 z-20 w-full border-b bg-white">
@@ -201,7 +192,6 @@ export default function Header({ children }: { children?: React.ReactNode }) {
                         {isNotiModalOpen && (
                            <NotificationModal
                               setIsNotiModalOpen={setIsNotiModalOpen}
-                              setHasUnread={setHasUnread}
                            />
                         )}
                      </div>

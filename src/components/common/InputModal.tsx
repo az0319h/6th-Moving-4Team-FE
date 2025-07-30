@@ -3,7 +3,7 @@ import React from "react";
 import close from "@/assets/images/xIcon.svg";
 import SolidButton from "@/components/common/SolidButton";
 
-interface ReviewModalProps {
+interface InputModalProps {
    isOpen: boolean;
    onClose: () => void;
    title: string;
@@ -19,7 +19,7 @@ export default function InputModal({
    children,
    buttonTitle, // 버튼 이름
    isActive, // 버튼 활성화
-}: ReviewModalProps) {
+}: InputModalProps) {
    if (!isOpen) return null;
 
    return (
