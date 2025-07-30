@@ -139,12 +139,13 @@ export default function DriverList({
       if (refreshKey && refreshKey > 0) {
          console.log("📋 DriverList 외부 새로고침 요청:", refreshKey);
 
-         // 현재 표시된 기사들의 ID 저장
-         const currentMoverIds = movers.map((m) => m.id);
-
          // 전체 리로드 대신 현재 데이터의 찜 상태를 다시 확인
          const refreshFavoriteStates = async () => {
             try {
+               // 현재 필터 값들을 함수 내부에서 사용 (의존성 문제 해결)
+               const currentMovers = movers;
+               const currentMoverIds = currentMovers.map((m) => m.id);
+
                let area = filters.area !== "all" ? filters.area : undefined;
                if (area && areaMapping[area]) {
                   area = areaMapping[area][0];
@@ -152,7 +153,7 @@ export default function DriverList({
 
                const params: GetMoversParams = {
                   page: 1,
-                  limit: Math.max(currentMoverIds.length, 10), // 현재 표시된 개수만큼만
+                  limit: Math.max(currentMoverIds.length, 10),
                   search: filters.search || undefined,
                   area,
                   serviceType:
@@ -188,7 +189,14 @@ export default function DriverList({
 
          refreshFavoriteStates();
       }
-   }, [refreshKey]); // 🔥 의존성 배열에서 filters와 movers.length 제거
+   }, [
+      refreshKey,
+      filters.area,
+      filters.search,
+      filters.serviceType,
+      filters.sortBy,
+      movers,
+   ]); // 🔥 필요한 의존성 모두 포함
 
    // 필터 변경 시 데이터 리셋
    useEffect(() => {

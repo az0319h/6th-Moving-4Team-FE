@@ -47,15 +47,7 @@ export const getMoverById = async (id: string): Promise<Mover> => {
    try {
       // tokenFetch를 먼저 시도 (토큰이 있으면 찜 상태 포함)
       return await tokenFetch(endpoint, { method: "GET" });
-   } catch (error: any) {
-      // 토큰이 없거나 인증 실패 시 defaultFetch
-      if (
-         error?.message?.includes("로그인 정보가 없습니다") ||
-         error?.message?.includes("토큰 갱신에 실패했습니다")
-      ) {
-         return await defaultFetch(endpoint, { method: "GET" });
-      }
-
+   } catch (error) {
       throw error;
    }
 };
