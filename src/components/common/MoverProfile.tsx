@@ -20,6 +20,7 @@ type MoverProfileProps = {
    reviewCount: number;
    career: number;
    estimateCount: number;
+   showHeart?: boolean; // 🔥 하트 표시 여부 제어
 };
 
 export default function MoverProfile({
@@ -34,6 +35,7 @@ export default function MoverProfile({
    reviewCount,
    career,
    estimateCount, // 스키마 필드명 그대로 사용했습니다
+   showHeart = true, // 🔥 기본값은 true (하트 표시)
 }: MoverProfileProps) {
    const t = useTranslations("Reviews");
 
@@ -80,28 +82,32 @@ export default function MoverProfile({
                >
                   {nickName} {t("mover")}
                </span>
-               <div className="flex items-center">
-                  <button onClick={handleLikedClick}>
-                     <Image
-                        src={isLiked ? heart : inActiveHeart}
-                        width={24}
-                        height={24}
-                        alt="좋아요"
+
+               {/* 🔥 showHeart가 true일 때만 하트와 찜 개수 표시 */}
+               {showHeart && (
+                  <div className="flex items-center">
+                     <button onClick={handleLikedClick}>
+                        <Image
+                           src={isLiked ? heart : inActiveHeart}
+                           width={24}
+                           height={24}
+                           alt="좋아요"
+                           className={
+                              forceMobileStyle ? "mr-0.5" : "mr-0.5 lg:mr-1"
+                           }
+                        />
+                     </button>
+                     <span
                         className={
-                           forceMobileStyle ? "mr-0.5" : "mr-0.5 lg:mr-1"
+                           forceMobileStyle
+                              ? "text-13-medium text-black-300"
+                              : "text-13-medium lg:text-18-medium text-black-300"
                         }
-                     />
-                  </button>
-                  <span
-                     className={
-                        forceMobileStyle
-                           ? "text-13-medium text-black-300"
-                           : "text-13-medium lg:text-18-medium text-black-300"
-                     }
-                  >
-                     {favoriteCount}
-                  </span>
-               </div>
+                     >
+                        {favoriteCount}
+                     </span>
+                  </div>
+               )}
             </div>
             <div
                className={
