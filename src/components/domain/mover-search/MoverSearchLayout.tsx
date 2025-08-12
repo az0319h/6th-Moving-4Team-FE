@@ -17,10 +17,15 @@ const FavoriteDriverList = lazy(() => import("./FavoriteDriverList"));
 
 const FavoriteListSkeleton = memo(function FavoriteListSkeleton() {
    return (
-      <div className="mt-8 flex animate-pulse flex-col gap-4 rounded-lg">
+      <div
+         className="mt-8 flex animate-pulse flex-col gap-4 rounded-lg"
+         role="status"
+         aria-label="찜한 기사님 목록 로딩 중"
+      >
          <div className="h-6 w-32 rounded bg-gray-200"></div>
          <div className="h-20 rounded-lg bg-gray-100"></div>
          <div className="h-20 rounded-lg bg-gray-100"></div>
+         <span className="sr-only">찜한 기사님 목록을 불러오는 중입니다</span>
       </div>
    );
 });
@@ -129,61 +134,106 @@ export default memo(function MoverSearchLayout() {
    );
 
    return (
-      <div className="mx-auto flex min-h-screen min-w-full justify-center pt-6 pb-10 md:max-w-3xl lg:max-w-6xl">
-         <div className="flex flex-col lg:flex-row lg:gap-32">
-            <div className="hidden w-80 shrink-0 lg:block">
-               <FilterAreaServiceBox
-                  areaOptions={translatedAreaOptions}
-                  serviceOptions={translatedServiceOptions}
-                  onFilterChange={handleFilterChange}
-                  onReset={handleReset}
-                  currentFilters={filters}
-               />
+      <>
+         {/* Skip Navigation 링크 - 디자인에 영향 없음 */}
+         <div className="sr-only">
+            <a
+               href="#main-content"
+               className="rounded-lg bg-blue-600 px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50"
+            >
+               본문 바로가기
+            </a>
+            <a
+               href="#search-bar"
+               className="rounded-lg bg-blue-600 px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-32 focus:z-50"
+            >
+               검색 바로가기
+            </a>
+         </div>
 
-               <Suspense fallback={<FavoriteListSkeleton />}>
-                  <FavoriteDriverList
-                     key={favoriteRefreshKey}
-                     refreshKey={favoriteRefreshKey} // refreshKey prop 추가
-                     onFavoriteChange={handleFavoriteListChange}
+         {/* 페이지 제목 - 스크린리더용만, 디자인에 영향 없음 */}
+         <h1 className="sr-only">{t("findDriver")}</h1>
+
+         <div className="mx-auto flex min-h-screen min-w-full justify-center pt-6 pb-10 md:max-w-3xl lg:max-w-6xl">
+            <div className="flex flex-col lg:flex-row lg:gap-32">
+               {/* 사이드바 - 원본 디자인 유지하면서 접근성 속성만 추가 */}
+               <div
+                  className="hidden w-80 shrink-0 lg:block"
+                  role="complementary"
+                  aria-label="필터 및 찜한 기사님"
+               >
+                  {/* 필터 섹션에 숨겨진 제목만 추가 */}
+                  <h2 className="sr-only">검색 필터</h2>
+                  <FilterAreaServiceBox
+                     areaOptions={translatedAreaOptions}
+                     serviceOptions={translatedServiceOptions}
+                     onFilterChange={handleFilterChange}
+                     onReset={handleReset}
+                     currentFilters={filters}
                   />
-               </Suspense>
-            </div>
 
-            <div className="box-border w-80 flex-1 md:w-[36rem] lg:w-[60rem]">
-               <div className="flex w-full flex-row justify-between">
-                  <div className="mb-4 block lg:hidden">
-                     <FilterAreaServiceBox
-                        areaOptions={translatedAreaOptions}
-                        serviceOptions={translatedServiceOptions}
-                        onFilterChange={handleFilterChange}
-                        onReset={handleReset}
-                        currentFilters={filters}
+                  {/* 찜한 기사님 섹션에 숨겨진 제목만 추가 */}
+                  <h2 className="sr-only">찜한 기사님 목록</h2>
+                  <Suspense fallback={<FavoriteListSkeleton />}>
+                     <FavoriteDriverList
+                        key={favoriteRefreshKey}
+                        refreshKey={favoriteRefreshKey}
+                        onFavoriteChange={handleFavoriteListChange}
+                     />
+                  </Suspense>
+               </div>
+
+               {/* 메인 콘텐츠 - 원본 디자인 유지 */}
+               <div
+                  id="main-content"
+                  className="box-border w-80 flex-1 md:w-[36rem] lg:w-[60rem]"
+               >
+                  <div className="flex w-full flex-row justify-between">
+                     {/* 모바일 필터 - 숨겨진 제목만 추가 */}
+                     <div className="mb-4 block lg:hidden">
+                        <h2 className="sr-only">모바일 검색 필터</h2>
+                        <FilterAreaServiceBox
+                           areaOptions={translatedAreaOptions}
+                           serviceOptions={translatedServiceOptions}
+                           onFilterChange={handleFilterChange}
+                           onReset={handleReset}
+                           currentFilters={filters}
+                        />
+                     </div>
+
+                     {/* 정렬 옵션 - 숨겨진 제목만 추가 */}
+                     <div className="ml-auto">
+                        <h2 className="sr-only">기사님 목록 정렬</h2>
+                        <SortDropdown
+                           selected={currentSortOption}
+                           onSelect={handleSortSelect}
+                           sortOptions={translatedSortOptions}
+                        />
+                     </div>
+                  </div>
+
+                  {/* 검색바 */}
+                  <div id="search-bar" className="relative mb-6">
+                     <SearchBar
+                        onSearchChange={(search) =>
+                           handleFilterChange({ search })
+                        }
+                        initialValue={filters.search}
                      />
                   </div>
 
-                  <div className="ml-auto">
-                     <SortDropdown
-                        selected={currentSortOption}
-                        onSelect={handleSortSelect}
-                        sortOptions={translatedSortOptions}
+                  {/* 기사님 목록 - 숨겨진 제목만 추가 */}
+                  <div role="region" aria-label="기사님 목록">
+                     <h2 className="sr-only">검색된 기사님 목록</h2>
+                     <DriverList
+                        filters={filters}
+                        onFavoriteChange={handleDriverListFavoriteChange}
+                        refreshKey={driverListRefreshKey}
                      />
                   </div>
                </div>
-
-               <div className="relative mb-6">
-                  <SearchBar
-                     onSearchChange={(search) => handleFilterChange({ search })}
-                     initialValue={filters.search}
-                  />
-               </div>
-
-               <DriverList
-                  filters={filters}
-                  onFavoriteChange={handleDriverListFavoriteChange}
-                  refreshKey={driverListRefreshKey}
-               />
             </div>
          </div>
-      </div>
+      </>
    );
 });

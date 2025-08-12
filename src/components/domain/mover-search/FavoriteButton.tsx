@@ -73,23 +73,46 @@ export default function FavoriteButton({
       }
    };
 
+   // 키보드 핸들러 추가
+   const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+         e.preventDefault();
+         handleClick();
+      }
+   };
+
+   // Get mover name with fallback
+   const moverName = mover.nickName ?? "";
+
    return (
       <>
          <button
             onClick={handleClick}
+            onKeyDown={handleKeyDown}
             disabled={isLoading}
-            className={`flex w-13 items-center justify-center gap-2 rounded-lg border bg-gray-50 px-4 py-3 font-medium transition-colors lg:w-full ${
+            className={`flex w-13 items-center justify-center gap-2 rounded-lg border bg-gray-50 px-4 py-3 font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none lg:w-full ${
                isLoading
                   ? "cursor-not-allowed bg-gray-50 text-gray-400"
                   : "border-line-200 text-gray-700 hover:bg-gray-100"
             }`}
+            aria-pressed={isFavorite}
+            aria-label={
+               isFavorite
+                  ? t("accessibility.unfavorite", { name: moverName })
+                  : t("accessibility.favorite", { name: moverName })
+            }
+            aria-busy={isLoading}
          >
-            <span className="text-lg">
-               <Image
-                  src={isFavorite ? heart : inActiveHeart}
-                  alt={isFavorite ? t("alt.unfavorite") : t("alt.favorite")}
-                  className="h-6 w-8"
-               />
+            <span className="text-lg" aria-hidden="true">
+               {isLoading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+               ) : (
+                  <Image
+                     src={isFavorite ? heart : inActiveHeart}
+                     alt=""
+                     className="h-6 w-8"
+                  />
+               )}
             </span>
             <span className="hidden lg:block">
                {isLoading
@@ -99,6 +122,12 @@ export default function FavoriteButton({
                     : t("favoriteDriver")}
             </span>
          </button>
+
+         {/* 상태 알림 */}
+         <div className="sr-only" role="status" aria-live="polite">
+            {isFavorite &&
+               t("accessibility.addedToFavorites", { name: moverName })}
+         </div>
 
          <LoginRequiredModal
             isOpen={isLoginModalOpen}

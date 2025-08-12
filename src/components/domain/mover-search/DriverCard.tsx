@@ -18,10 +18,6 @@ import { useToast } from "@/context/ToastConText";
 import { EstimateStatus, Mover } from "@/lib/types";
 import { useTranslations } from "next-intl";
 import LoginRequiredModal from "./LoginRequiredModal";
-import { useChat } from "@/context/ChatContext";
-import { initializeChatRoom } from "@/lib/firebase/firebaseChat";
-import { useSupportHub } from "@/context/SupportHubContext";
-import ChatButton from "@/components/common/Chatbutton";
 
 interface DriverCardProps {
    mover: Mover;
@@ -38,11 +34,9 @@ export default memo(function DriverCard({
 }: DriverCardProps) {
    const t = useTranslations("MoverSearch");
 
-   const { openHub } = useSupportHub();
    const router = useRouter();
    const pathname = usePathname();
    const { user } = useAuth();
-   const { setChatId } = useChat();
    const { showSuccess, showError } = useToast();
 
    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -72,6 +66,9 @@ export default memo(function DriverCard({
       );
    }, [mover.hasDesignatedRequest, mover.designatedEstimateStatus]);
 
+   // 기사님 이름 안전하게 처리
+   const moverName = useMemo(() => mover.nickName || " ", [mover.nickName]);
+
    // 찜 상태 관리
    const [currentFavoriteState, setCurrentFavoriteState] = useState(
       isFavoritePage ? true : (mover.isFavorite ?? false),
@@ -89,6 +86,14 @@ export default memo(function DriverCard({
          router.push(`/mover-search/${mover.id}`);
       });
    }, [router, mover.id]);
+
+   // 키보드 핸들러 추가
+   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+         e.preventDefault();
+         handleCardClick();
+      }
+   }, [handleCardClick]);
 
    // 찜하기 핸들러
    const handleLikedClick = useCallback(
@@ -157,64 +162,41 @@ export default memo(function DriverCard({
       ],
    );
 
-   const handleChatClick = async (e: React.MouseEvent) => {
-      e.stopPropagation();
-
-      const clientId = user!.id;
-      const moverId = mover!.id;
-      const moverName = mover.nickName!;
-      const clientName = user!.name!;
-      const chatId = `${mover.id}_${user!.id}`;
-
-      // 프로필 이미지 추가 (빈 값이면 기본 이미지 처리됨)
-      const moverProfileImage = mover.profileImage || "";
-      const clientProfileImage = user!.profileImage || "";
-
-      await initializeChatRoom({
-         chatId,
-         moverId,
-         moverName,
-         moverProfileImage,
-         clientId,
-         clientName,
-         clientProfileImage,
-         initiatorId: user!.id, // 현재 사용자가 채팅을 시작함
-      });
-
-      setChatId(chatId);
-      openHub();
-   };
-
    // 카드 스타일을 메모이제이션
    const cardClassName = useMemo(() => {
       const baseClass =
-         "flex h-48 w-full cursor-pointer items-center justify-center rounded-xl border border-gray-50 bg-white shadow-sm transition hover:shadow-md lg:h-56 lg:px-5";
+         "flex h-48 w-full cursor-pointer items-center justify-center rounded-xl border border-gray-50 bg-white shadow-sm transition hover:shadow-md lg:h-56 lg:px-5 focus:outline-none focus:ring-2 focus:ring-blue-500";
       return isPending ? `${baseClass} opacity-75` : baseClass;
    }, [isPending]);
 
    return (
       <>
-         <div onClick={handleCardClick} className={cardClassName}>
+         {/* div를 button으로 변경 + 접근성 속성 추가 */}
+         <button 
+            onClick={handleCardClick}
+            onKeyDown={handleKeyDown}
+            className={cardClassName}
+            aria-label={t("accessibility.driverCard", { name: moverName })}
+            aria-describedby={`mover-${mover.id}-details`}
+            disabled={isPending}
+         >
             {/* 로딩 인디케이터 */}
             {isPending && (
-               <div className="absolute top-2 right-2 z-10">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+               <div className="absolute top-2 right-2 z-10" aria-live="polite">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" role="status">
+                     <span className="sr-only">{t("accessibility.loading")}</span>
+                  </div>
                </div>
             )}
 
             <div className="flex flex-col">
                {/* 서비스 타입 칩들 */}
-               <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                     {validServiceTypes.map((type) => (
-                        <MoveChip key={type} type={type} mini={false} />
-                     ))}
-                     {shouldShowDesignated && (
-                        <MoveChip type="DESIGNATED" mini={false} />
-                     )}
-                  </div>
-                  {user?.userType === "client" && (
-                     <ChatButton onClick={handleChatClick} />
+               <div className="mb-2 flex items-center gap-2">
+                  {validServiceTypes.map((type) => (
+                     <MoveChip key={type} type={type} mini={false} />
+                  ))}
+                  {shouldShowDesignated && (
+                     <MoveChip type="DESIGNATED" mini={false} />
                   )}
                </div>
 
@@ -231,7 +213,7 @@ export default memo(function DriverCard({
                      big={false}
                      isLiked={currentFavoriteState}
                      handleLikedClick={handleLikedClick}
-                     nickName={mover.nickName ?? " "}
+                     nickName={moverName}
                      favoriteCount={mover.favoriteCount}
                      averageReviewRating={mover.averageReviewRating}
                      reviewCount={mover.reviewCount}
@@ -241,8 +223,18 @@ export default memo(function DriverCard({
                      showHeart={!isLoggedInAsMover}
                   />
                </div>
+
+               {/* 스크린리더용 추가 정보 */}
+               <div id={`mover-${mover.id}-details`} className="sr-only">
+                  {t("accessibility.moverDetails", {
+                     name: moverName,
+                     rating: mover.averageReviewRating || 0,
+                     career: mover.career || 0,
+                     reviewCount: mover.reviewCount || 0
+                  })}
+               </div>
             </div>
-         </div>
+         </button>
 
          {/* 모달을 카드 외부로 이동 */}
          <LoginRequiredModal

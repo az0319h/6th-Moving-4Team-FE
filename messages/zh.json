@@ -168,7 +168,7 @@
    "MoverSearch": {
       "findDriver": "寻找司机",
       "areas": {
-         "all": "全部",
+         "all": "地区",
          "seoul": "首尔",
          "incheon": "仁川",
          "daejeon": "大田",
@@ -188,7 +188,7 @@
          "jeju": "济州"
       },
       "services": {
-         "all": "全部",
+         "all": "服务",
          "SMALL": "小型搬家",
          "HOME": "家庭搬家",
          "OFFICE": "办公室搬家"
@@ -225,7 +225,21 @@
          "addedToFavorites": "已添加到收藏。",
          "removedFromFavorites": "已从收藏中移除。"
       },
-      "goToLogin": "去登录"
+      "goToLogin": "去登录",
+      "accessibility": {
+         "driverCard": "{name}司机卡片",
+         "loading": "加载中...",
+         "moverDetails": "{name}，{rating}分，{career}年经验，{reviewCount}个评价",
+         "searchSection": "司机搜索",
+         "noServicesAvailable": "无可用服务",
+         "noRegionsAvailable": "无服务地区",
+         "servicesList": "服务列表",
+         "regionsList": "服务地区列表",
+         "service": "服务",
+         "region": "地区",
+         "servicesCount": "{count}项服务可用",
+         "regionsCount": "在{count}个地区提供服务"
+      }
    },
    "MoverDetail": {
       "requestDesignatedEstimate": "向司机请求指定报价！",
@@ -301,6 +315,12 @@
          "경북": "庆北",
          "경남": "庆南",
          "제주": "济州"
+      },
+      "accessibility": {
+         "favorite": "收藏{name}",
+         "unfavorite": "取消收藏{name}",
+         "addedToFavorites": "{name}已添加到收藏",
+         "moverDetailsHeading": "{name}详情"
       }
    },
    "Dashboard": {
@@ -457,7 +477,7 @@
       "confirmed": "已确认",
       "year": "年",
       "cases": "例",
-      "profileAlt": "{name}的个人资料图片",
+      "profileAlt": "个人资料图片",
       "errorOccurred": "发生错误。",
       "loadingText": "加载中...",
       "reviewRegistered": "评价已成功注册。",
@@ -471,21 +491,7 @@
       "deleteConfirmDescription": "此操作不可撤销。",
       "editConfirmTitle": "修改评论",
       "editConfirmDescription": "您确定要修改评论吗？",
-      "noChangesError": "未检测到更改。",
-      "writableReviewList": "可撰写的评论列表",
-      "moveType": {
-         "SMALL": "小型搬家",
-         "HOME": "家庭搬家",
-         "OFFICE": "办公室搬家"
-      },
-      "designatedEstimate": "指定报价",
-      "defaultProfileAlt": "默认头像",
-      "writeReviewFor": "为师傅写评价",
-      "paginationNav": "分页导航",
-      "editDeleteReviewAria": "编辑或删除{name}的评论",
-      "ratingAria": "评分 {rating} 分",
-      "unlikeMover": "取消收藏{name}师傅",
-      "likeMover": "收藏{name}师傅"
+      "noChangesError": "未检测到更改。"
    },
    "FavoriteMovers": {
       "title": "收藏的搬运工",
@@ -499,13 +505,7 @@
       "errorOccurred": "发生错误。",
       "favoriteToggleSuccess": "收藏状态已成功更新。",
       "favoriteToggleError": "更新收藏状态时发生错误。",
-      "removeSuccess": "已从收藏中移除。",
-      "favoriteMoverList": "收藏的搬家师傅列表",
-      "moverCardClickAria": "前往{name}师傅的个人资料页面",
-      "unlikeMover": "取消收藏{name}师傅",
-      "likeMover": "收藏{name}师傅",
-      "paginationNav": "收藏的搬家师傅分页导航",
-      "goToFavoriteMoversAria": "前往搬家师傅搜索页面"
+      "removeSuccess": "已从收藏中移除。"
    },
    "MyQuotes": {
       "Client": {
@@ -873,14 +873,6 @@
       "sendInquiry": "向搬家咨询",
       "supportRegisteredMessage": "您的咨询已成功提交。",
       "supportRegisterFailedMessage": "提交咨询失败，请稍后再试。"
-   },
-   "Pagination": {
-      "paginationNav": "分页导航",
-      "prevPage": "上一页",
-      "nextPage": "下一页",
-      "page": "第 {page} 页",
-      "pageWithCurrent": "第 {page} 页（当前页）",
-      "ellipsis": "省略"
    },
    "Calculator": {
       "title": "估价计算器",

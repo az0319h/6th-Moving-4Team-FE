@@ -168,7 +168,7 @@
    "MoverSearch": {
       "findDriver": "기사님 찾기",
       "areas": {
-         "all": "전체",
+         "all": "지역",
          "seoul": "서울",
          "incheon": "인천",
          "daejeon": "대전",
@@ -188,7 +188,7 @@
          "jeju": "제주"
       },
       "services": {
-         "all": "전체",
+         "all": "서비스",
          "SMALL": "소형이사",
          "HOME": "가정이사",
          "OFFICE": "사무실이사"
@@ -225,7 +225,21 @@
          "addedToFavorites": "찜 목록에 추가되었습니다.",
          "removedFromFavorites": "찜 목록에서 제거되었습니다."
       },
-      "goToLogin": "로그인하러 가기"
+      "goToLogin": "로그인하러 가기",
+      "accessibility": {
+         "driverCard": "{name} 기사님 카드",
+         "loading": "로딩 중...",
+         "moverDetails": "{name} 기사님, 평점 {rating}점, 경력 {career}년, 리뷰 {reviewCount}개",
+         "searchSection": "기사님 검색",
+         "noServicesAvailable": "제공하는 서비스가 없습니다",
+         "noRegionsAvailable": "서비스 가능 지역이 없습니다",
+         "servicesList": "제공 서비스 목록",
+         "regionsList": "서비스 가능 지역 목록",
+         "service": "서비스",
+         "region": "지역",
+         "servicesCount": "{count}개의 서비스를 제공합니다",
+         "regionsCount": "{count}개 지역에서 서비스 가능합니다"
+      }
    },
    "MoverDetail": {
       "requestDesignatedEstimate": "기사님에게 지정 견적을 요청해보세요!",
@@ -301,6 +315,12 @@
          "경북": "경북",
          "경남": "경남",
          "제주": "제주"
+      },
+      "accessibility": {
+         "favorite": "{name} 기사님 찜하기",
+         "unfavorite": "{name} 기사님 찜 해제하기",
+         "addedToFavorites": "{name} 기사님이 찜 목록에 추가되었습니다",
+         "moverDetailsHeading": "{name} 기사님 상세 정보"
       }
    },
    "Dashboard": {
@@ -457,7 +477,7 @@
       "confirmed": "확정",
       "year": "년",
       "cases": "건",
-      "profileAlt": "{name}님의 프로필 이미지",
+      "profileAlt": "프로필 이미지",
       "errorOccurred": "오류가 발생했습니다.",
       "loadingText": "로딩중...",
       "reviewRegistered": "리뷰가 성공적으로 등록되었습니다.",
@@ -471,22 +491,7 @@
       "deleteConfirmDescription": "이 작업은 되돌릴 수 없습니다.",
       "editConfirmTitle": "리뷰 수정",
       "editConfirmDescription": "리뷰를 수정하시겠습니까?",
-      "noChangesError": "변경된 내용이 없습니다.",
-      "writableReviewList": "작성 가능한 리뷰 리스트",
-      "moveType": {
-         "SMALL": "소형이사",
-         "HOME": "가정이사",
-         "OFFICE": "사무실이사"
-      },
-      "designatedEstimate": "지정 견적",
-      "defaultProfileAlt": "기본 프로필 이미지",
-      "writeReviewFor": "기사님에게 리뷰 작성",
-      "paginationNav": "페이지네이션 네비",
-      "myReviewList": "내 리뷰 리스트",
-      "editDeleteReviewAria": "{name}님의 리뷰 수정 또는 삭제",
-      "ratingAria": "별점 {rating}점",
-      "unlikeMover": "{name}님 찜 해제",
-      "likeMover": "{name}님 찜하기"
+      "noChangesError": "변경된 내용이 없습니다."
    },
    "FavoriteMovers": {
       "title": "찜한 기사님",
@@ -500,13 +505,7 @@
       "errorOccurred": "오류가 발생했습니다.",
       "favoriteToggleSuccess": "찜이 성공적으로 변경되었습니다.",
       "favoriteToggleError": "찜 처리 중 오류가 발생했습니다.",
-      "removeSuccess": "찜 목록에서 제거되었습니다.",
-      "favoriteMoverList": "찜한 기사 목록",
-      "moverCardClickAria": "{name} 기사님의 프로필 페이지로 이동",
-      "unlikeMover": "{name} 기사님 찜 해제",
-      "likeMover": "{name} 기사님 찜하기",
-      "paginationNav": "찜한 기사 페이지 네비게이션",
-      "goToFavoriteMoversAria": "기사 검색 페이지로 이동"
+      "removeSuccess": "찜 목록에서 제거되었습니다."
    },
    "MyQuotes": {
       "Client": {
@@ -873,14 +872,6 @@
       "sendInquiry": "무빙에 문의하기",
       "supportRegisteredMessage": "문의가 정상적으로 등록되었습니다.",
       "supportRegisterFailedMessage": "문의 접수에 실패했습니다. 잠시 후 다시 시도해주세요."
-   },
-   "Pagination": {
-      "paginationNav": "페이지 탐색",
-      "prevPage": "이전 페이지",
-      "nextPage": "다음 페이지",
-      "page": "페이지 {page}",
-      "pageWithCurrent": "페이지 {page} (현재 페이지)",
-      "ellipsis": "생략"
    },
    "Calculator": {
       "title": "이사 견적 계산기",
