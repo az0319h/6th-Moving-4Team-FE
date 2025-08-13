@@ -10,7 +10,7 @@ import {
    useMoverProfileSchemas,
 } from "../schemas/profile.schema";
 import { useAuth } from "@/context/AuthContext";
-import { extractRegionNames } from "../utils/profile.util";
+import { base64ToFile, extractRegionNames } from "../utils/profile.util";
 import updateMoverProfile from "../api/auth/requests/updateMoverProfile";
 import updateProfileImage from "../api/auth/requests/updateProfileImage";
 import { useTranslations } from "next-intl";
@@ -23,7 +23,7 @@ function useMoverProfileUpdateForm() {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState(false);
    const { user, refreshUser } = useAuth();
-   const { showSuccess } = useToast();
+   const { showSuccess, showError } = useToast();
    const { moverProfileSchema } = useMoverProfileSchemas();
 
    const {
@@ -68,16 +68,28 @@ function useMoverProfileUpdateForm() {
    const onSubmit = async (data: MoverProfileInput) => {
       setIsLoading(true);
 
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 이미지 사이즈 제한 10MB
+
       try {
          // 이미지가 있으면 먼저 업로드
          let imageUrl: string | undefined;
 
-         if (data.image instanceof File) {
+         if (
+            typeof data.image === "string" &&
+            data.image.startsWith("data:image")
+         ) {
+            // Base64 문자열이면 File 객체로 변환 후 업로드
+            const file = base64ToFile(data.image, "cropped.png");
+            if (file.size > MAX_FILE_SIZE) {
+               showError(
+                  "이미지 크기가 10MB를 초과했습니다. 다른 이미지를 사용해 주세요",
+               );
+               setIsLoading(false);
+               return;
+            }
             const formData = new FormData();
-            formData.append("image", data.image);
-
+            formData.append("image", file);
             const res = await updateProfileImage(formData);
-
             imageUrl = res.url; // 백엔드에서 반환한 s3 URL
          }
 
@@ -139,7 +151,7 @@ function useMoverProfileUpdateForm() {
             }
             await refreshUser();
             showSuccess(t("profileUpdated"));
-            refreshUser(); // TODO: 이거 왜 한번 더 호출하는 건가요?
+
             router.push("/dashboard");
          }
       } catch (error) {

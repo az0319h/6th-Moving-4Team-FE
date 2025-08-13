@@ -174,7 +174,6 @@ export default function ImageEditModal({
             const maxRadius = Math.min(
                displayInfo.displayWidth / 2,
                displayInfo.displayHeight / 2,
-               MAX_RADIUS,
             );
 
             const newRadius = Math.min(

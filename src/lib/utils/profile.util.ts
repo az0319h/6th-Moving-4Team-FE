@@ -18,6 +18,19 @@ export const labelToEnumMap = Object.fromEntries(
    Object.entries(serviceTypeMap).map(([key, value]) => [value, key]),
 );
 
+// (프로필 이미지 등록/수정 시) 크롭된 이미지(base64:string)를 File로 변환
+export function base64ToFile(base64: string, filename: string): File {
+   const arr = base64.split(",");
+   const mime = arr[0].match(/:(.*?);/)![1];
+   const bstr = atob(arr[1]);
+   let n = bstr.length;
+   const u8arr = new Uint8Array(n);
+   while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+   }
+   return new File([u8arr], filename, { type: mime });
+}
+
 // (프로필 이미지 수정 시) 크롭 원이 이미지를 벗어나지 않도록
 export function getImageDisplayInfo(img: HTMLImageElement, container: DOMRect) {
    const imageAspect = img.naturalWidth / img.naturalHeight;

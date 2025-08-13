@@ -23,6 +23,7 @@ import { IoIosSend } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import { useOutsideClick } from "@/lib/hooks/useOutsideClick";
 import { ChatMessage, ChatParticipant, ParticipantsMap } from "@/lib/types";
+import MessageText from "../common/MessageText";
 
 dayjs.locale("ko");
 
@@ -260,7 +261,7 @@ export default function ChatRoom() {
                   }`}
                   style={{ wordBreak: "break-all" }}
                >
-                  {msg.text}
+                  <MessageText text={msg.text} />
                </div>
 
                <div

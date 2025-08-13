@@ -22,8 +22,11 @@ export default function PasswordInput<T extends FieldValues>({
    const toggleEyeIcon = () => setIsVisible((prev) => !prev);
 
    return (
-      <section className="flex w-full flex-col gap-2">
-         <label htmlFor={name} className="text-black-400 text-14-regular">
+      <section className="flex w-full flex-col gap-2 lg:gap-4">
+         <label
+            htmlFor={name}
+            className="text-black-400 text-14-regular lg:text-20-regular"
+         >
             {label}
          </label>
 

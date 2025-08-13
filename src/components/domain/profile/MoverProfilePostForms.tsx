@@ -35,15 +35,6 @@ export default function MoverProfilePostForm() {
 
          <div className="flex flex-col lg:flex-row lg:gap-18">
             <div className="flex flex-1 flex-col">
-               <GeneralInputField<MoverProfileInput>
-                  labelId="nickname-label"
-                  name="nickName"
-                  text="별명"
-                  placeholder="사이트에 노출될 이름을 입력해주세요"
-                  register={register}
-                  error={errors.nickName}
-               />
-
                <hr className="border-line-100 m-0 border-t p-0" />
 
                <ImageInputField
@@ -57,7 +48,7 @@ export default function MoverProfilePostForm() {
                <hr className="border-line-100 m-0 border-t p-0" />
 
                <GeneralInputField<MoverProfileInput>
-                  labelId="career-label"
+                  labelId="nickName-label"
                   name="nickName"
                   text={t("nickNameLabel")}
                   placeholder={t("nickNamePlaceholder")}
@@ -68,6 +59,7 @@ export default function MoverProfilePostForm() {
                <hr className="border-line-100 m-0 border-t p-0" />
 
                <GeneralInputField<MoverProfileInput>
+                  labelId="career-label"
                   name="career"
                   text={t("careerLabel")}
                   placeholder={t("careerPlaceholder")}
