@@ -60,12 +60,6 @@ export default function SearchBar({
                </button>
             )}
          </div>
-         {searchTerm && (
-            <div className="mt-2 text-sm text-gray-500">
-               {t("searching")}:{" "}
-               <span className="font-medium">&quot;{searchTerm}&quot;</span>
-            </div>
-         )}
       </form>
    );
 }
