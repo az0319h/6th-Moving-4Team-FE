@@ -114,7 +114,7 @@ export default memo(function MoverDetail() {
             mover: null,
          });
       }
-   }, [moverId, authState.hasToken, authState.isLoggedIn, t]);
+   }, [moverId, authState.hasToken, authState.isLoggedIn, t, locale]);
 
    useEffect(() => {
       fetchMover();

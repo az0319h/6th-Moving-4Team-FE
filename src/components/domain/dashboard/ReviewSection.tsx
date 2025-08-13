@@ -75,7 +75,7 @@ export default function DashboardReviewSection({
       } finally {
          setLoading(false);
       }
-   }, [moverId, user?.userType, t]);
+   }, [moverId, user?.userType, t, locale]);
 
    useEffect(() => {
       fetchReviews();

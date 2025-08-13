@@ -9,7 +9,6 @@ import { getMoverProfile } from "@/lib/api/mover/getMoverProfile";
 import { Mover } from "@/lib/types/auth.types";
 import { useLocale, useTranslations } from "next-intl";
 
-// 🔧 Fixed: Replace any with specific type
 interface MoverCardErrorBoundaryProps {
    children: React.ReactNode;
    fallback: React.ComponentType<Record<string, never>>;
@@ -84,7 +83,7 @@ export default function MoverCard() {
       } finally {
          setLoading(false);
       }
-   }, [t]);
+   }, [t, locale]);
 
    const handleRetry = useCallback(() => {
       if (retryCount < 1) {

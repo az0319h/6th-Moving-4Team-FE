@@ -85,7 +85,7 @@ function ServiceTags({ services }: { services?: string[] }) {
    return (
       <div>
          <ul className="flex flex-wrap gap-2" role="list" aria-label={t("accessibility.servicesList")}>
-            {services.map((service, index) => (
+            {services.map((service) => (
                <li key={service} role="listitem">
                   <span
                      className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-600"

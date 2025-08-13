@@ -96,7 +96,8 @@ export default memo(function DriverList({
          filters.serviceType,
          filters.sortBy,
          currentPage,
-         t, // t 의존성 추가
+         t,
+         locale,
       ],
    );
 
@@ -191,6 +192,7 @@ export default memo(function DriverList({
       filters.serviceType,
       filters.sortBy,
       movers,
+      locale
    ]);
 
    //  필터 변경 시 데이터 리셋 + t 의존성 추가
@@ -239,7 +241,7 @@ export default memo(function DriverList({
       }, 300);
 
       return () => clearTimeout(timeoutId);
-   }, [filters.search, filters.area, filters.serviceType, filters.sortBy, t]);
+   }, [filters.search, filters.area, filters.serviceType, filters.sortBy, t, locale]);
 
    if (error) {
       return (
