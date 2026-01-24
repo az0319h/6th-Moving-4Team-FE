@@ -201,7 +201,7 @@ Moving은 사용자가 손쉽게 여러 기사님의 견적을 비교하고, 자
         <a href="https://www.notion.so/217e8b00d07a8036a583ddb33c62345d" target="_blank">개인 리포트</a>
       </td>
       <td align="center">
-        <a href="https://www.notion.so/2177a895c9ac8039a81fc7aad5fdbaed" target="_blank">개인 리포트</a>
+        <a href="https://indecisive-tick-a70.notion.site/1130682fe58d48e39ff64939eda4fda0" target="_blank">개인 리포트</a>
       </td>
       <td align="center">
         <a href="https://www.notion.so/1c4c0886ab1380968ff8febb837182c7" target="_blank">개인 리포트</a>
